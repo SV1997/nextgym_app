@@ -1,10 +1,10 @@
 import { productSchema } from "@/lib/validators/productSchema";
 import { writeFile } from "node:fs/promises";
-import {PrismaClient, users,products} from "@prisma/client"
+import {PrismaClient,products} from "@prisma/client"
 import path from "node:path";
+const client= new PrismaClient();
 
 export async function POST(req: Request, res: Response) {
-    const client= new PrismaClient();
 const data= await req.formData();
 
 let validatedData 
@@ -12,7 +12,7 @@ try {
     validatedData = productSchema.parse({
         name: data.get('name'),
         description: data.get('description'),
-        price: data.get('price'),
+        price: Number(data.get('price')),
         image: data.get('image'),
         email: data.get('email')
     })
@@ -34,12 +34,24 @@ try {
             description: validatedData.description,
             price: validatedData.price,
             image: filename,
-            users: {
-                connect: { email: validatedData.email }
-            }
+            // users: {
+            //     connect: { email: validatedData.email }
+            // }
         }
     })
 } catch (error) {
+    console.log(error);
     
+    return Response.json({message:"failed to store in db"}, {status:500})
 }
+return Response.json({message:"product created successfully"}, {status:201})
+}
+
+export async function GET(){
+try
+    {    const allProducts= await client.products.findMany();
+    return Response.json(allProducts, {status:200})}
+    catch (error){
+        return Response.json({message:error}, {status:500})
+    }
 }
