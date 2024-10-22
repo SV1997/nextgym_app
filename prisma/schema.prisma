@@ -33,6 +33,13 @@ model products{
   // userId String
 }
 
+model warehouse{
+  id Int @id @default(autoincrement())
+  name String
+  pincode Int
+}
+
+
 model contactinfo{
   id Int @id @default(autoincrement())
   mobileNumber String
